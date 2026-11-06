@@ -189,7 +189,7 @@ int main() {
             // ABOUT
             else if (pilihan == 2) {
                 clear();
-
+                attron(COLOR_PAIR(2));
                 mvprintw(5, 20, "Game ini dibuat untuk memenuhi tugas mata kuliah Dasar Pemrograman & Algoritma.");
                 attroff(COLOR_PAIR(2));
 
