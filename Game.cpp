@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <ncurses.h>
 
@@ -43,6 +42,13 @@ int main() {
 
     bkgd(COLOR_PAIR(1));
     clear();
+
+    int dino_x = 5;
+    int dino_y = ground_y - 3;
+    int old_dino_y = dino_y;
+
+    int ground_y = max_y - 2;
+
     loading();
 
     int pilihan = 0;
@@ -117,16 +123,15 @@ int main() {
             // MULAI GAME
             if (pilihan == 0) {
                 loading();
-
                 clear();
 
-                attron(COLOR_PAIR(2));
-                mvprintw(5, 20, "Game akan dimulai...");
-                attroff(COLOR_PAIR(2));
+                mvprintw(dino_y, dino_x, "  \\0/  ");
+                mvprintw(dino_y + 1, dino_x, "   |   ");
+                mvprintw(dino_y + 2, dino_x, "  / \\  ");
 
-                attron(COLOR_PAIR(4));
-                mvprintw(7, 20, "Tekan tombol apa saja untuk kembali.");
-                attroff(COLOR_PAIR(4));
+                for (int i = 0; i < max_x; i++) {
+                mvaddch(ground_y, i, '-');
+                }
 
                 refresh();
                 getch();
