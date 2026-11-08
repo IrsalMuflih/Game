@@ -4,20 +4,7 @@
 
 using namespace std;
 
-int main() {
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-
-    start_color();
-
-    init_pair(1, COLOR_WHITE, COLOR_BLACK);
-    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(3, COLOR_GREEN, COLOR_BLACK);
-    init_pair(4, COLOR_CYAN, COLOR_BLACK);
-
-    bkgd(COLOR_PAIR(1));
+void loading() {
     clear();
 
     // LOADING
@@ -39,6 +26,24 @@ int main() {
         refresh();
         napms(250);
     }
+}
+
+int main() {
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+
+    start_color();
+
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);
+
+    bkgd(COLOR_PAIR(1));
+    clear();
+    loading();
 
     int pilihan = 0;
     int tombol;
@@ -111,74 +116,20 @@ int main() {
 
             // MULAI GAME
             if (pilihan == 0) {
-                int level = 0;
-                int tombolLevel;
+                loading();
 
-                while (true) {
-                    clear();
+                clear();
 
-                    attron(COLOR_PAIR(2));
-                    mvprintw(5, 20, "Pilih level:");
-                    attroff(COLOR_PAIR(2));
+                attron(COLOR_PAIR(2));
+                mvprintw(5, 20, "Game akan dimulai...");
+                attroff(COLOR_PAIR(2));
 
-                    for (int i = 0; i < 5; i++) {
-                        if (level == i) {
-                            attron(COLOR_PAIR(3));
-                            mvprintw(6 + i, 20, "> Level %d", i + 1);
-                            attroff(COLOR_PAIR(3));
-                        }
-                        else {
-                            attron(COLOR_PAIR(1));
-                            mvprintw(6 + i, 20, "  Level %d", i + 1);
-                            attroff(COLOR_PAIR(1));
-                        }
-                    }
+                attron(COLOR_PAIR(4));
+                mvprintw(7, 20, "Tekan tombol apa saja untuk kembali.");
+                attroff(COLOR_PAIR(4));
 
-                    attron(COLOR_PAIR(4));
-                    mvprintw(12, 20, "Tekan ESC untuk kembali ke menu utama.");
-                    attroff(COLOR_PAIR(4));
-
-                    refresh();
-
-                    tombolLevel = getch();
-
-                    if (tombolLevel == KEY_LEFT) {
-                        level--;
-
-                        if (level < 0)
-                            level = 4;
-                    }
-
-                    else if (tombolLevel == KEY_RIGHT) {
-                        level++;
-
-                        if (level > 4)
-                            level = 0;
-                    }
-
-                    else if (tombolLevel == 10 || tombolLevel == KEY_ENTER) {
-                        clear();
-
-                        attron(COLOR_PAIR(2));
-                        mvprintw(5, 20, "Kamu memilih Level %d", level + 1);
-                        attroff(COLOR_PAIR(2));
-
-                        attron(COLOR_PAIR(3));
-                        mvprintw(7, 20, "Game akan dimulai...");
-                        attroff(COLOR_PAIR(3));
-
-                        attron(COLOR_PAIR(4));
-                        mvprintw(9, 20, "Tekan tombol apa saja untuk kembali.");
-                        attroff(COLOR_PAIR(4));
-
-                        refresh();
-                        getch();
-                    }
-
-                    else if (tombolLevel == 27) {
-                        break;
-                    }
-                }
+                refresh();
+                getch();
             }
 
             // KELUAR
@@ -187,7 +138,7 @@ int main() {
             }
 
             // ABOUT
-            else if (pilihan == 2) {
+             else if (pilihan == 2) {
                 clear();
                 attron(COLOR_PAIR(2));
                 mvprintw(5, 20, "Game ini dibuat untuk memenuhi tugas mata kuliah Dasar Pemrograman & Algoritma.");
