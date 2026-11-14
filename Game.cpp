@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <ncurses.h>
-#include <string>     
+#include <string>
 #include <fstream>
 
 using namespace std;
@@ -14,6 +14,34 @@ struct player {
 const int MAX_PLAYER = 5;
 int jumlahPemain = 0;
 player highScores[MAX_PLAYER];
+
+void loading() {
+    clear();
+
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+
+    int tengah = max_x / 2;
+
+    attron(COLOR_PAIR(2));
+    mvprintw(10, tengah - 5, "Loading....");
+    mvprintw(11, tengah - 9, "-----------------");
+    mvprintw(13, tengah - 9, "-----------------");
+    attroff(COLOR_PAIR(2));
+
+    attron(COLOR_PAIR(1));
+    mvprintw(12, tengah - 9, "|                 |");
+    attroff(COLOR_PAIR(1));
+
+    for (int f = 1; f < 16; f++) {
+        attron(COLOR_PAIR(3));
+        mvprintw(12, tengah - 9 + f, ">");
+        attroff(COLOR_PAIR(3));
+
+        refresh();
+        usleep(15000);
+    }
+}
 
 void loadHighScore() {
     ifstream file("highscore.txt");
@@ -59,51 +87,32 @@ void simpanHighScore() {
     file.close();
 }
 
-void loading() {
-    clear();
-
-    attron(COLOR_PAIR(2));
-    mvprintw(10, 20, "Loading....");
-    mvprintw(11, 20, "-----------------");
-    mvprintw(13, 20, "-----------------");
-    attroff(COLOR_PAIR(2));
-
-    attron(COLOR_PAIR(1));
-    mvprintw(12, 20, "|                 |");
-    attroff(COLOR_PAIR(1));
-
-    for (int f = 1; f < 16; f++) {
-        attron(COLOR_PAIR(3));
-        mvprintw(12, 20 + f, ">");
-        attroff(COLOR_PAIR(3));
-
-        refresh();
-        usleep(15000); 
-    }
-}
-
 void inputHighScore(int skor) {
     char nama[30];
 
     clear();
 
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+
+    int tengah = max_x / 2;
+
     attron(COLOR_PAIR(2));
-    mvprintw(8, 20, "=== MASUKKAN NAMA ANDA ===");
+    mvprintw(8, tengah - 13, "=== MASUKKAN NAMA ANDA ===");
     attroff(COLOR_PAIR(2));
 
     attron(COLOR_PAIR(1));
-    mvprintw(11, 20, "Nama pemain: ");
-    mvprintw(13, 20, "Skor akhir: %d", skor);
+    mvprintw(11, tengah - 20, "Nama pemain: ");
+    mvprintw(13, tengah - 20, "Skor akhir: %d", skor);
     attroff(COLOR_PAIR(1));
 
     echo();
     curs_set(1);
-    move(11, 34);
+    move(11, tengah - 7);
     getnstr(nama, 29);
     noecho();
     curs_set(0);
 
-   
     string namaPemain = nama;
 
     if (namaPemain.empty()) {
@@ -115,7 +124,7 @@ void inputHighScore(int skor) {
         highScores[jumlahPemain].skor = skor;
         jumlahPemain++;
     }
-   
+
     else if (skor > highScores[jumlahPemain - 1].skor) {
         highScores[jumlahPemain - 1].nama = namaPemain;
         highScores[jumlahPemain - 1].skor = skor;
@@ -131,61 +140,106 @@ void inputHighScore(int skor) {
         }
     }
 
-    
-simpanHighScore();
+    simpanHighScore();
 
+    clear();
 
-clear();
+    attron(COLOR_PAIR(3));
+    mvprintw(9, tengah - 17, "=== SCORE BERHASIL DISIMPAN! ===");
+    attroff(COLOR_PAIR(3));
 
-attron(COLOR_PAIR(3));
-mvprintw(9, 25, "=== SCORE BERHASIL DISIMPAN! ===");
-attroff(COLOR_PAIR(3));
+    attron(COLOR_PAIR(1));
+    mvprintw(12, tengah - 20, "Nama pemain : %s", namaPemain.c_str());
+    mvprintw(13, tengah - 20, "Skor akhir  : %d", skor);
+    mvprintw(16, tengah - 20, "Silakan lihat High Score di menu utama.");
+    mvprintw(18, tengah - 22, "Tekan tombol apa saja untuk kembali ke menu.");
+    attroff(COLOR_PAIR(1));
 
-attron(COLOR_PAIR(1));
-mvprintw(12, 25, "Nama pemain : %s", namaPemain.c_str());
-mvprintw(13, 25, "Skor akhir  : %d", skor);
-mvprintw(16, 25, "Silakan lihat High Score di menu utama.");
-mvprintw(18, 25, "Tekan tombol apa saja untuk kembali ke menu.");
-attroff(COLOR_PAIR(1));
-
-refresh();
-getch();
-
+    refresh();
+    getch();
 }
 
 void tampilkanHighScores() {
     loadHighScore();
     clear();
+
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+
+    int tengah = max_x / 2;
+
     attron(COLOR_PAIR(2));
-    mvprintw(5, 30, "=== HIGH SCORES ===");
+    mvprintw(5, tengah - 10, "=== HIGH SCORES ===");
     attroff(COLOR_PAIR(2));
 
     attron(COLOR_PAIR(4));
-    mvprintw(8,20, "RANK");
-    mvprintw(8,32, "NAMA");
-    mvprintw(8,50, "SKOR");
+    mvprintw(8, tengah - 30, "RANK");
+    mvprintw(8, tengah - 18, "NAMA");
+    mvprintw(8, tengah + 5, "SKOR");
     attroff(COLOR_PAIR(4));
 
     if (jumlahPemain == 0) {
-        mvprintw(10, 25, "Belum ada data High Score.");
+        mvprintw(10, tengah - 15, "Belum ada data High Score.");
     }
-    
+
     for (int i = 0; i < jumlahPemain; i++) {
         attron(COLOR_PAIR(1));
-        mvprintw(10 + i, 20, "%d", i + 1);
-        mvprintw(10 + i, 32, "%s", highScores[i].nama.c_str());
-        mvprintw(10 + i, 50, "%d", highScores[i].skor);
+        mvprintw(10 + i, tengah - 30, "%d", i + 1);
+        mvprintw(10 + i, tengah - 18, "%s", highScores[i].nama.c_str());
+        mvprintw(10 + i, tengah + 5, "%d", highScores[i].skor);
         attroff(COLOR_PAIR(1));
     }
 
     attron(COLOR_PAIR(3));
-    mvprintw(15, 20, "Tekan tombol apa saja untuk kembali.");
+    mvprintw(15, tengah - 18, "Tekan tombol apa saja untuk kembali.");
     attroff(COLOR_PAIR(3));
 
     refresh();
     getch();
 }
 
+void animasiMenu(int frame, int max_y, int max_x) {
+    int ground_y = max_y - 2;
+
+    // Lantai
+    attron(COLOR_PAIR(3));
+    for (int i = 0; i < max_x; i++) {
+        mvaddch(ground_y + 1, i, '=');
+    }
+    attroff(COLOR_PAIR(3));
+
+    // Posisi stickman berjalan
+    int stickman_x = 2 + (frame % (max_x - 5));
+
+    attron(COLOR_PAIR(1));
+
+    // Kepala dan badan
+    mvaddstr(ground_y - 2, stickman_x, " O ");
+    mvaddstr(ground_y - 1, stickman_x, "/|\\");
+
+    // Animasi kaki berjalan
+    if ((frame / 4) % 2 == 0) {
+        mvaddstr(ground_y, stickman_x, "/ \\");
+    } else {
+        mvaddstr(ground_y, stickman_x, "|| ");
+    }
+
+    attroff(COLOR_PAIR(1));
+
+    // Posisi burung terbang
+    int bird_x = max_x - 4 - (frame % (max_x - 6));
+    int bird_y = max_y - 6;
+
+    attron(COLOR_PAIR(2));
+
+    if ((frame / 5) % 2 == 0) {
+        mvaddstr(bird_y, bird_x, "<o>");
+    } else {
+        mvaddstr(bird_y, bird_x, "(o)");
+    }
+
+    attroff(COLOR_PAIR(2));
+}
 
 int runGame() {
     int max_y, max_x;
@@ -195,11 +249,13 @@ int runGame() {
     if (ground_y < 15) ground_y = 15;
 
     int stickman_x = 10;
-    float stickman_y = ground_y - 2;
+    float stickman_y = ground_y - 1;
     float velocity_y = 0;
     float gravity = 0.4;
     bool is_jumping = false;
     bool is_ducking = false;
+    int duck_frame = 0;
+    const int duck_duration = 8;
 
     int obstacle_x = max_x - 10;
     int obstacle_type = 0;
@@ -207,7 +263,6 @@ int runGame() {
     bool game_over = false;
     int frame = 0;
 
-     
     nodelay(stdscr, TRUE);
 
     while (!game_over) {
@@ -218,23 +273,33 @@ int runGame() {
                 is_jumping = true;
             }
         } else if (ch == 's' || ch == 'S' || ch == KEY_DOWN) {
-            if (!is_jumping) {
+            if (!is_jumping && !is_ducking) {
                 is_ducking = true;
+                duck_frame = 0;
             }
         } else if (ch == 'q' || ch == 'Q') {
             nodelay(stdscr, FALSE);
             return -1;
-        } else {
+        } else if (ch != ERR) {
             if (!is_jumping) {
                 is_ducking = false;
+            }
+        }
+
+        if (is_ducking) {
+            duck_frame++;
+
+            if (duck_frame >= duck_duration) {
+                is_ducking = false;
+                duck_frame = 0;
             }
         }
 
         if (is_jumping) {
             stickman_y += velocity_y;
             velocity_y += gravity;
-            if (stickman_y >= ground_y - 2) {
-                stickman_y = ground_y - 2;
+            if (stickman_y >= ground_y - 1) {
+                stickman_y = ground_y - 1;
                 is_jumping = false;
                 velocity_y = 0;
             }
@@ -251,11 +316,10 @@ int runGame() {
         if (obstacle_x >= stickman_x && obstacle_x <= stickman_x + 2) {
             if (obstacle_type == 0 && current_sy >= ground_y - 2) {
                 game_over = true;
-            } else if (obstacle_type == 1 && !is_ducking)  {
-                    game_over = true;
-                }
+            } else if (obstacle_type == 1 && !is_ducking) {
+                game_over = true;
             }
-        
+        }
 
         erase();
 
@@ -268,19 +332,20 @@ int runGame() {
         attron(COLOR_PAIR(2));
         mvprintw(2, 4, "SCORE: %d", score);
         attroff(COLOR_PAIR(2));
-        
+
         attron(COLOR_PAIR(4));
-        mvprintw(2, max_x - 40, "W/SPACE: Lompat | S: Tunduk | Q: Keluar");
+        mvprintw(2, max_x / 2 - 20, "W/SPACE: Lompat | S: Tunduk | Q: Keluar");
         attroff(COLOR_PAIR(4));
 
         attron(COLOR_PAIR(1));
         if (is_ducking) {
             mvaddstr(ground_y - 1, stickman_x, "<o>");
             mvaddstr(ground_y, stickman_x, "/=\\");
-	    } else {
+        } else {
             int sy = (int)stickman_y;
             mvaddstr(sy - 1, stickman_x, " O ");
             mvaddstr(sy, stickman_x, "/|\\");
+
             if ((frame / 4) % 2 == 0) {
                 mvaddstr(sy + 1, stickman_x, "/ \\");
             } else {
@@ -289,12 +354,11 @@ int runGame() {
         }
         attroff(COLOR_PAIR(1));
 
-        
         attron(COLOR_PAIR(2));
         if (obstacle_type == 0) {
             mvaddstr(ground_y - 2, obstacle_x, "<---<");
             mvaddstr(ground_y - 1, obstacle_x, "<---<");
-	    mvaddstr(ground_y, obstacle_x, "<---<");
+            mvaddstr(ground_y, obstacle_x, "<---<");
         } else {
             int bird_y = ground_y - 3;
             if ((frame / 5) % 2 == 0) {
@@ -315,18 +379,18 @@ int runGame() {
         frame++;
     }
 
-    
     nodelay(stdscr, FALSE);
     clear();
+
     attron(COLOR_PAIR(2));
-    mvprintw(max_y / 2 - 2, max_x / 2 - 6, "GAME OVER!");
+    mvprintw(max_y / 2 - 2, max_x / 2 - 5, "GAME OVER!");
     mvprintw(max_y / 2, max_x / 2 - 9, "FINAL SCORE: %d", score);
     attroff(COLOR_PAIR(2));
-    
+
     attron(COLOR_PAIR(1));
-    mvprintw(max_y / 2 + 2, max_x / 2 - 14, "Tekan tombol apa saja untuk kembali...");
+    mvprintw(max_y / 2 + 2, max_x / 2 - 20, "Tekan tombol apa saja untuk kembali...");
     attroff(COLOR_PAIR(1));
-    
+
     refresh();
     getch();
     return score;
@@ -346,67 +410,84 @@ int main() {
     init_pair(4, COLOR_CYAN, COLOR_BLACK);
 
     bkgd(COLOR_PAIR(1));
-    
+
     loadHighScore();
 
     int pilihan = 0;
     int tombol;
 
+    loading();
+
+    nodelay(stdscr, TRUE);
+
+    int frame = 0;
+
     while (true) {
         clear();
 
+        int max_y, max_x;
+        getmaxyx(stdscr, max_y, max_x);
+
+        int tengah = max_x / 2;
+
         attron(COLOR_PAIR(2));
-        mvprintw(5, 25, "=== STICKMAN RUNNER GAME ===");
+        mvprintw(5, tengah - 14, "=== STICKMAN RUNNER GAME ===");
         attroff(COLOR_PAIR(2));
 
         if (pilihan == 0) {
             attron(COLOR_PAIR(3));
-            mvprintw(12, 15, "> Mulai Game");
+            mvprintw(12, tengah - 33, "> Mulai Game");
             attroff(COLOR_PAIR(3));
         } else {
             attron(COLOR_PAIR(1));
-            mvprintw(12, 15, "  Mulai Game");
+            mvprintw(12, tengah - 33, "  Mulai Game");
             attroff(COLOR_PAIR(1));
         }
 
         if (pilihan == 1) {
             attron(COLOR_PAIR(3));
-            mvprintw(12, 38, "> high Scores");
+            mvprintw(12, tengah - 14, "> High Scores");
             attroff(COLOR_PAIR(3));
         } else {
             attron(COLOR_PAIR(1));
-            mvprintw(12, 38, "  high Scores");
+            mvprintw(12, tengah - 14, "  High Scores");
             attroff(COLOR_PAIR(1));
         }
 
         if (pilihan == 2) {
             attron(COLOR_PAIR(3));
-            mvprintw(12, 50, "> keluar");
+            mvprintw(12, tengah + 5, "> Keluar");
             attroff(COLOR_PAIR(3));
         } else {
             attron(COLOR_PAIR(1));
-            mvprintw(12, 50, "  keluar");
+            mvprintw(12, tengah + 5, "  Keluar");
             attroff(COLOR_PAIR(1));
         }
 
         if (pilihan == 3) {
             attron(COLOR_PAIR(3));
-            mvprintw(12, 62, "> About");
+            mvprintw(12, tengah + 18, "> Tentang Game");
             attroff(COLOR_PAIR(3));
         } else {
             attron(COLOR_PAIR(1));
-            mvprintw(12, 62, "  About");
+            mvprintw(12, tengah + 18, "  Tentang Game");
             attroff(COLOR_PAIR(1));
         }
 
         attron(COLOR_PAIR(4));
-        mvprintw(15, 20, "Created by:");
-        mvprintw(16, 20, "Raihan Belvananda Zuhair * Irsal Muflih * Nur Kholifah * Anisa Setiyawati");
+        mvprintw(15, tengah - 5, "Created by:");
+        mvprintw(16, tengah - 35, "Raihan Belvananda Zuhair * Irsal Muflih * Nur Kholifah * Anisa Setiyawati");
         attroff(COLOR_PAIR(4));
+
+        // Animasi stickman dan burung
+        animasiMenu(frame, max_y, max_x);
 
         refresh();
 
         tombol = getch();
+
+        usleep(80000);
+        frame++;
 
         if (tombol == KEY_LEFT || tombol == 'a' || tombol == 'A') {
             pilihan--;
@@ -418,16 +499,23 @@ int main() {
                 pilihan = 0;
         } else if (tombol == 10 || tombol == KEY_ENTER || tombol == ' ') {
             if (pilihan == 0) {
+                nodelay(stdscr, FALSE);
                 loading();
 
                 int finalScore = runGame();
-                
+
                 if (finalScore >= 0) {
-                   inputHighScore(finalScore);
+                    inputHighScore(finalScore);
                 }
+
+                nodelay(stdscr, TRUE);
             }
             else if (pilihan == 1) {
+                nodelay(stdscr, FALSE);
+
                 tampilkanHighScores();
+
+                nodelay(stdscr, TRUE);
             }
             else if (pilihan == 2) {
                 break;
@@ -436,23 +524,25 @@ int main() {
                 clear();
 
                 attron(COLOR_PAIR(2));
-                mvprintw(5, 20, "Game ini dibuat untuk memenuhi tugas mata kuliah Dasar Pemrograman & Algoritma.");
+                mvprintw(5, tengah - 39, "Game ini dibuat untuk memenuhi tugas proyek akhir Mata Kuliah Dasar Pemrograman & Algoritma.");
                 attroff(COLOR_PAIR(2));
 
                 attron(COLOR_PAIR(4));
-                mvprintw(6, 20, "Dibuat oleh kelompok kami yang beranggotakan:");
+                mvprintw(6, tengah - 25, "Dibuat oleh kelompok kami yang beranggotakan:");
 
-                mvprintw(8, 20, "Raihan Belvananda Zuhair : NPM (2657052002)");
-                mvprintw(9, 20, "Irsal Muflih             : NPM (2617052056)");
-                mvprintw(10, 20, "Nur Kholifah             : NPM (2657052001)");
-                mvprintw(11, 20, "Anisa Setiyawati         : NPM (2617052037)");
+                mvprintw(8, tengah - 22, "Raihan Belvananda Zuhair : NPM (2657052002)");
+                mvprintw(9, tengah - 22, "Irsal Muflih             : NPM (2617052056)");
+                mvprintw(10, tengah - 22, "Nur Kholifah             : NPM (2657052001)");
+                mvprintw(11, tengah - 22, "Anisa Setiyawati         : NPM (2617052037)");
 
-                mvprintw(13, 20, "Tekan tombol apa saja untuk kembali.");
+                mvprintw(13, tengah - 18, "Tekan tombol apa saja untuk kembali.");
+                mvprintw(14, tengah - 8, "Game Version 1.0");
                 attroff(COLOR_PAIR(4));
 
                 refresh();
-                nodelay(stdscr, FALSE); 
+                nodelay(stdscr, FALSE);
                 getch();
+                nodelay(stdscr, TRUE);
             }
         }
     }
