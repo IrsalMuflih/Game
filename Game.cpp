@@ -21,10 +21,10 @@ void loading() {
     attroff(COLOR_PAIR(2));
 
     attron(COLOR_PAIR(1));
-    mvprintw(12, tengah - 9, "|                 |");
+    mvprintw(12, tengah - 9, "|                |");
     attroff(COLOR_PAIR(1));
 
-    for (int f = 1; f < 18; f++) {
+    for (int f = 1; f < 17; f++) {
         attron(COLOR_PAIR(3));
         mvprintw(12, tengah - 9 + f, ">");
         attroff(COLOR_PAIR(3));
@@ -32,7 +32,6 @@ void loading() {
         refresh();
         napms(100);
     }
-
     clear();
 }
 
