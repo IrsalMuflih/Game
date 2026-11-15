@@ -6,15 +6,6 @@
 
 using namespace std;
 
-struct player {
-    string nama;
-    int skor;
-};
-
-const int MAX_PLAYER = 5;
-int jumlahPemain = 0;
-player highScores[MAX_PLAYER];
-
 void loading() {
     clear();
 
@@ -33,15 +24,26 @@ void loading() {
     mvprintw(12, tengah - 9, "|                 |");
     attroff(COLOR_PAIR(1));
 
-    for (int f = 1; f < 16; f++) {
+    for (int f = 1; f < 18; f++) {
         attron(COLOR_PAIR(3));
         mvprintw(12, tengah - 9 + f, ">");
         attroff(COLOR_PAIR(3));
 
         refresh();
-        usleep(15000);
+        napms(100);
     }
+
+    clear();
 }
+
+struct player {
+    string nama;
+    int skor;
+};
+
+const int MAX_PLAYER = 5;
+int jumlahPemain = 0;
+player highScores[MAX_PLAYER];
 
 void loadHighScore() {
     ifstream file("highscore.txt");
@@ -196,6 +198,7 @@ void tampilkanHighScores() {
 
     refresh();
     getch();
+    clear();
 }
 
 void animasiMenu(int frame, int max_y, int max_x) {
@@ -213,6 +216,15 @@ void animasiMenu(int frame, int max_y, int max_x) {
 
     attron(COLOR_PAIR(1));
 
+    // Hapus posisi stickman sebelumnya
+    static int old_stickman_x = -1;
+
+    if (old_stickman_x != -1) {
+        mvaddstr(ground_y - 2, old_stickman_x, "   ");
+        mvaddstr(ground_y - 1, old_stickman_x, "   ");
+        mvaddstr(ground_y, old_stickman_x, "   ");
+    }
+
     // Kepala dan badan
     mvaddstr(ground_y - 2, stickman_x, " O ");
     mvaddstr(ground_y - 1, stickman_x, "/|\\");
@@ -224,6 +236,8 @@ void animasiMenu(int frame, int max_y, int max_x) {
         mvaddstr(ground_y, stickman_x, "|| ");
     }
 
+    old_stickman_x = stickman_x;
+
     attroff(COLOR_PAIR(1));
 
     // Posisi burung terbang
@@ -232,11 +246,21 @@ void animasiMenu(int frame, int max_y, int max_x) {
 
     attron(COLOR_PAIR(2));
 
+    // Hapus posisi burung sebelumnya
+    static int old_bird_x = -1;
+
+    if (old_bird_x != -1) {
+        mvaddstr(bird_y, old_bird_x, "   ");
+    }
+
+    // Animasi burung
     if ((frame / 5) % 2 == 0) {
         mvaddstr(bird_y, bird_x, "<o>");
     } else {
         mvaddstr(bird_y, bird_x, "(o)");
     }
+
+    old_bird_x = bird_x;
 
     attroff(COLOR_PAIR(2));
 }
@@ -279,6 +303,8 @@ int runGame() {
             }
         } else if (ch == 'q' || ch == 'Q') {
             nodelay(stdscr, FALSE);
+            clear();
+            attron(COLOR_PAIR(2));
             return -1;
         } else if (ch != ERR) {
             if (!is_jumping) {
@@ -396,6 +422,35 @@ int runGame() {
     return score;
 }
 
+void about(){
+
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+    int tengah = max_x / 2;
+    clear();
+    attron(COLOR_PAIR(2));
+    mvprintw(5, tengah - 39, "Game ini dibuat untuk memenuhi tugas proyek akhir Mata Kuliah Dasar Pemrograman & Algoritma.");
+    attroff(COLOR_PAIR(2));
+
+    attron(COLOR_PAIR(4));
+    mvprintw(6, tengah - 25, "Dibuat oleh kelompok kami yang beranggotakan:");
+
+    mvprintw(8, tengah - 22, "Raihan Belvananda Zuhair : NPM (2657052002)");
+    mvprintw(9, tengah - 22, "Irsal Muflih             : NPM (2617052056)");
+    mvprintw(10, tengah - 22, "Nur Kholifah             : NPM (2657052001)");
+    mvprintw(11, tengah - 22, "Anisa Setiyawati         : NPM (2617052037)");
+
+    mvprintw(13, tengah - 18, "Tekan tombol apa saja untuk kembali.");
+    mvprintw(14, tengah - 8, "Game Version 1.0");
+    attroff(COLOR_PAIR(4));
+
+    refresh();
+    nodelay(stdscr, FALSE);
+    getch();
+    nodelay(stdscr, TRUE);
+    clear();
+}
+
 int main() {
     initscr();
     cbreak();
@@ -423,7 +478,6 @@ int main() {
     int frame = 0;
 
     while (true) {
-        clear();
 
         int max_y, max_x;
         getmaxyx(stdscr, max_y, max_x);
@@ -486,7 +540,7 @@ int main() {
 
         tombol = getch();
 
-        usleep(80000);
+        napms(80);
         frame++;
 
         if (tombol == KEY_LEFT || tombol == 'a' || tombol == 'A') {
@@ -507,7 +561,8 @@ int main() {
                 if (finalScore >= 0) {
                     inputHighScore(finalScore);
                 }
-
+                
+                clear();
                 nodelay(stdscr, TRUE);
             }
             else if (pilihan == 1) {
@@ -521,32 +576,11 @@ int main() {
                 break;
             }
             else if (pilihan == 3) {
-                clear();
-
-                attron(COLOR_PAIR(2));
-                mvprintw(5, tengah - 39, "Game ini dibuat untuk memenuhi tugas proyek akhir Mata Kuliah Dasar Pemrograman & Algoritma.");
-                attroff(COLOR_PAIR(2));
-
-                attron(COLOR_PAIR(4));
-                mvprintw(6, tengah - 25, "Dibuat oleh kelompok kami yang beranggotakan:");
-
-                mvprintw(8, tengah - 22, "Raihan Belvananda Zuhair : NPM (2657052002)");
-                mvprintw(9, tengah - 22, "Irsal Muflih             : NPM (2617052056)");
-                mvprintw(10, tengah - 22, "Nur Kholifah             : NPM (2657052001)");
-                mvprintw(11, tengah - 22, "Anisa Setiyawati         : NPM (2617052037)");
-
-                mvprintw(13, tengah - 18, "Tekan tombol apa saja untuk kembali.");
-                mvprintw(14, tengah - 8, "Game Version 1.0");
-                attroff(COLOR_PAIR(4));
-
-                refresh();
-                nodelay(stdscr, FALSE);
-                getch();
-                nodelay(stdscr, TRUE);
+                about();
             }
         }
     }
 
     endwin();
     return 0;
-}
+}               
