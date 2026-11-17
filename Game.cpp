@@ -264,6 +264,71 @@ void animasiMenu(int frame, int max_y, int max_x) {
     attroff(COLOR_PAIR(2));
 }
 
+void tampilkanGameOver(int score);
+
+int pause() {
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+
+    int pilihan = 0;
+    int tombol;
+    int tengah = max_x / 2;
+
+    nodelay(stdscr, FALSE);
+
+    while (true) {
+
+        attron(COLOR_PAIR(2));
+        mvprintw(max_y / 2 - 3, tengah - 7, "=== PAUSED ===");
+        attroff(COLOR_PAIR(2));
+
+        if (pilihan == 0) {
+            attron(COLOR_PAIR(3));
+            mvprintw(max_y / 2, tengah - 12, "> Lanjutkan Game");
+            attroff(COLOR_PAIR(3));
+        } else {
+            attron(COLOR_PAIR(1));
+            mvprintw(max_y / 2, tengah - 12, "  Lanjutkan Game");
+            attroff(COLOR_PAIR(1));
+        }
+
+        if (pilihan == 1) {
+            attron(COLOR_PAIR(3));
+            mvprintw(max_y / 2 + 2, tengah - 12, "> Kembali ke Menu");
+            attroff(COLOR_PAIR(3));
+        } else {
+            attron(COLOR_PAIR(1));
+            mvprintw(max_y / 2 + 2, tengah - 12, "  Kembali ke Menu");
+            attroff(COLOR_PAIR(1));
+        }
+
+        refresh();
+
+        tombol = getch();
+
+        if (tombol == KEY_DOWN || tombol == 's' || tombol == 'S') {
+            pilihan++;
+            if (pilihan > 1)
+                pilihan = 0;
+        }
+        else if (tombol == KEY_UP || tombol == 'w' || tombol == 'W') {
+            pilihan--;
+            if (pilihan < 0)
+                pilihan = 1;
+        }
+        else if (tombol == 10 || tombol == KEY_ENTER || tombol == ' ') {
+            nodelay(stdscr, TRUE);
+
+            if (pilihan == 0) {
+                return 0;
+            }
+            else {
+                return 1;
+            }
+        }
+    }
+}
+
 int runGame() {
     int max_y, max_x;
     getmaxyx(stdscr, max_y, max_x);
@@ -304,7 +369,17 @@ int runGame() {
             nodelay(stdscr, FALSE);
             clear();
             attron(COLOR_PAIR(2));
-            return -1;
+            return score;
+        } else if (ch == 'p' || ch == 'P') {
+            int hasil = pause();
+
+            if (hasil == 1) {
+                tampilkanGameOver(score);
+                return score;
+            }
+
+            clear();
+            nodelay(stdscr, TRUE);
         } else if (ch != ERR) {
             if (!is_jumping) {
                 is_ducking = false;
@@ -359,7 +434,7 @@ int runGame() {
         attroff(COLOR_PAIR(2));
 
         attron(COLOR_PAIR(4));
-        mvprintw(2, max_x / 2 - 20, "W/SPACE: Lompat | S: Tunduk | Q: Keluar");
+        mvprintw(2, max_x / 2 - 20, "W/SPACE: Lompat | S: Tunduk | P: Pause | Q: Keluar");
         attroff(COLOR_PAIR(4));
 
         attron(COLOR_PAIR(1));
@@ -402,8 +477,15 @@ int runGame() {
 
         usleep(current_speed);
         frame++;
+        } 
+        tampilkanGameOver(score);
+        return score;
     }
 
+
+    void tampilkanGameOver(int score) {
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
     nodelay(stdscr, FALSE);
     clear();
 
@@ -418,7 +500,6 @@ int runGame() {
 
     refresh();
     getch();
-    return score;
 }
 
 void about(){
